@@ -1,0 +1,84 @@
+---
+title: "Variable Clustering in R"
+author: "Ariful Mondal"
+date: "25 September 2016"
+output: 
+  html_document:
+    fig_width: 11
+    fig_height: 8
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(warn=-1, width = 150, strip.white=TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r, echo = TRUE}
+# Set working directory
+setwd("C:/creditscoring")
+
+# List of libraries 
+library(lattice) # for Histogram
+library(knitr)  # for kable
+
+# Read data into R (tab delimitted)
+cdata<-read.table("data.txt", h=T, sep="")
+```
+
+```{r, echo=TRUE, cache=TRUE}
+# Varclus
+library(ClustOfVar) # for variable clustering
+library(ggplot2)
+library(GPArotation) 
+library(ape) # for as.phylo
+
+# Step 1:
+vars_quali<- cdata[,c(1,3,4,6,7,9,10,12,14,15,17,19,20)]
+vars_quanti <- cdata[, c(2,5,8,11,13,16,18)]
+str(vars_quanti)
+
+tree <- hclustvar(X.quanti=vars_quanti,X.quali=vars_quali)
+plot(tree)
+rect.hclust(tree, k=10,  border = 1:10)
+
+# add colors randomly
+plot(as.phylo(tree), type = "fan",
+     tip.color = hsv(runif(15, 0.65,  0.95), 1, 1, 0.7),
+     edge.color = hsv(runif(10, 0.65, 0.75), 1, 1, 0.7), 
+     edge.width = runif(20,  0.5, 3), use.edge.length = TRUE, col = "gray80")
+
+summary.phylo(as.phylo(tree))
+
+#stab<-stability(tree,B=10) # Bootstrap 10 times
+#plot(stab,main="Stability of the partitions")
+#boxplot(stab$matCR[,1:12])
+#boxplot(stab$matCR)
+
+part<-cutreevar(tree,12)
+print(part)
+
+summary(part)
+#part$scores
+
+```
+
+*duration_month_2
+*age_in_yrs_13
+credit_amount_5
+installment_pct_disp_inc_8
+chk_ac_status_1
+credit_history_3
+savings_ac_bond_6
+purpose_4
+property_type_12
+p_employment_since_7
+
